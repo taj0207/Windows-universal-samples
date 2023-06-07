@@ -21,7 +21,7 @@ namespace SDKTemplate
         {
             get { return Reader.Name; }
         }
-        public string CardName
+        public List<string> CardNames
         {
             get;
             set;
@@ -82,17 +82,19 @@ namespace SDKTemplate
                     // each (reader, card) pair.
                     IReadOnlyList<SmartCard> cards = await reader.FindAllCardsAsync();
 
+                    var item = new SmartCardListItem()
+                    {
+                        Reader = reader,
+                        CardNames = new List<string>(cards.Count),
+                    };
+
                     foreach (SmartCard card in cards)
                     {
                         SmartCardProvisioning provisioning = await SmartCardProvisioning.FromSmartCardAsync(card);
-
-                        SmartCardListItem item = new SmartCardListItem()
-                        {
-                            Reader = card.Reader,
-                            CardName = await provisioning.GetNameAsync()
-                        };
-                        cardItems.Add(item);
+                        item.CardNames.Add(await provisioning.GetNameAsync());
                     }
+
+                    cardItems.Add(item);
                 }
                 // Bind the source of ItemListView to our SmartCardListItem list.
                 ItemListView.ItemsSource = cardItems;
