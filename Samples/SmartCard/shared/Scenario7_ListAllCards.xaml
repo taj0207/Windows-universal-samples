@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 //*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
@@ -41,7 +41,7 @@
                     <ListView x:Name="ItemListView" Width="300" Height="Auto" 
                         HorizontalAlignment="Left" BorderBrush="LightGray" BorderThickness="1" 
                         VerticalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                        ScrollViewer.HorizontalScrollBarVisibility="Auto" SelectionMode="None">
+                        ScrollViewer.HorizontalScrollBarVisibility="Auto" SelectionMode="Single">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid HorizontalAlignment="Left">

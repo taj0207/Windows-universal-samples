@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Windows.Devices.Enumeration;
 using Windows.Devices.SmartCards;
@@ -7,28 +7,39 @@ using Windows.UI.Xaml.Controls;
 
 namespace SDKTemplate
 {
+
     public class SmartCardListItem
     {
-        public string ReaderName
+
+        public SmartCardReader Reader
         {
             get;
             set;
         }
 
+        public string ReaderName
+        {
+            get { return Reader.Name; }
+        }
         public string CardName
         {
             get;
             set;
         }
-
     }
     public sealed partial class Scenario7_ListAllCards : Page
     {
         MainPage rootPage = MainPage.Current;
+        List<SmartCardListItem> cardItems;
 
         public Scenario7_ListAllCards()
         {
             this.InitializeComponent();
+            // This list will be bound to our ItemListView once it has been
+            // filled with SmartCardListItems.  The SmartCardListItem class
+            // is defined above, and describes a reader/card pair with a
+            // reader name and a card name.
+            cardItems = new List<SmartCardListItem>();
         }
 
         /// <summary>
@@ -43,12 +54,7 @@ namespace SDKTemplate
             try
             {
                 rootPage.NotifyUser("Enumerating smart cards...", NotifyType.StatusMessage);
-
-                // This list will be bound to our ItemListView once it has been
-                // filled with SmartCardListItems.  The SmartCardListItem class
-                // is defined above, and describes a reader/card pair with a
-                // reader name and a card name.
-                List<SmartCardListItem> cardItems = new List<SmartCardListItem>();
+                cardItems.Clear();
 
                 // First we get the device selector for smart card readers using
                 // the static GetDeviceSelector method of the SmartCardReader
@@ -82,16 +88,16 @@ namespace SDKTemplate
 
                         SmartCardListItem item = new SmartCardListItem()
                         {
-                            ReaderName = card.Reader.Name,
+                            Reader = card.Reader,
                             CardName = await provisioning.GetNameAsync()
                         };
-
                         cardItems.Add(item);
                     }
                 }
-
                 // Bind the source of ItemListView to our SmartCardListItem list.
                 ItemListView.ItemsSource = cardItems;
+                ItemListView.SelectedIndex = -1;
+                ItemListView.SelectionChanged += SelectedIndexChange;
 
                 rootPage.NotifyUser("Enumerating smart cards completed.", NotifyType.StatusMessage);
             }
@@ -103,6 +109,11 @@ namespace SDKTemplate
             {
                 b.IsEnabled = true;
             }
+        }
+        void SelectedIndexChange(object sender, SelectionChangedEventArgs args)
+        {
+            rootPage.SmartCardReaderDeviceId = cardItems[ItemListView.SelectedIndex].Reader.DeviceId;
+            rootPage.NotifyUser("select card reader: " + rootPage.SmartCardReaderDeviceId , NotifyType.StatusMessage);
         }
     }
 }
