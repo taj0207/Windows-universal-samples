@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+﻿using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.Storage.Streams;
@@ -27,35 +26,30 @@ namespace SDKTemplate
             if (!rootPage.ValidateTPMSmartCard())
             {
                 rootPage.NotifyUser("Use Scenario One to create a TPM virtual smart card.", NotifyType.ErrorMessage);
-            }
-            if (ApduToSend.Text.Length % 2 != 0)
-            {
-                rootPage.NotifyUser("Lenght of ApduToSend must be odd.", NotifyType.ErrorMessage);
+                return;
             }
 
             Button b = sender as Button;
             b.IsEnabled = false;
 
             try
-            {                
+            {
+                SmartCard card = await rootPage.GetSmartCard();
+
+                IBuffer result = null;
+
+                using (SmartCardConnection connection = await card.ConnectAsync())
                 {
-                    SmartCard card = await rootPage.GetSmartCard();
-                    SmartCardProvisioning provisioning = await SmartCardProvisioning.FromSmartCardAsync(card);
-                    IBuffer result = null;
-                    using (SmartCardConnection connection = await card.ConnectAsync())
-                    {
-                        rootPage.NotifyUser(ApduToSend.Text , NotifyType.StatusMessage);
-                        byte[] sendapdu  = Enumerable.Range(0, ApduToSend.Text.Length).Where(x => x % 2 == 0).Select(x => Convert.ToByte(ApduToSend.Text.Substring(x, 2), 16)).ToArray();
-                        // default: get atr
-                        // 00 CB 2F 01 02 5C 00 FF
-                        // select ppse
-                        // 00 A4 04 00 0E 32 50 41 59 2E 53 59 53 2E 44 44 46 30 31 00 
+                    // Read EF.ATR file
+                    // The command is meant specifically for GIDS cards 
+                    // (such as TPM VSCs), and will fail on other types.
+                    byte[] readEfAtrBytes = { 0x00, 0xCB, 0x2F, 0x01, 0x02, 0x5C, 0x00, 0xFF };
 
-                        IBuffer apdu = CryptographicBuffer.CreateFromByteArray(sendapdu);
+                    IBuffer readEfAtr = CryptographicBuffer.CreateFromByteArray(readEfAtrBytes);
 
-                        result = await connection.TransmitAsync(apdu);
-                        ApduResponse.Text = CryptographicBuffer.EncodeToHexString(result);
-                    }
+                    result = await connection.TransmitAsync(readEfAtr);
+                
+                    rootPage.NotifyUser("Response: " + CryptographicBuffer.EncodeToHexString(result), NotifyType.StatusMessage);
                 }
             }
             catch (Exception ex)
