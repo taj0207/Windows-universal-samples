@@ -124,19 +124,16 @@ namespace SDKTemplate
         }
         async void cardadded(SmartCardReader reader, CardAddedEventArgs args)
         {
-            Guid g;
             foreach(SmartCardListItem scli in cardItems)
             {
                 if (scli.Reader == reader)
                 {
                     SmartCardProvisioning provisioning = await SmartCardProvisioning.FromSmartCardAsync(args.SmartCard);
-                    g = (await provisioning.GetIdAsync());
-                    scli.CardNames.Add(g.ToString());
-                    
+                    scli.CardNames.Add(await provisioning.GetNameAsync());
                     break;
                 }
             }
-            rootPage.NotifyUser("Add card to card reader: " + reader.Name + " " + g.ToString(), NotifyType.StatusMessage);
+            rootPage.NotifyUser("Add card to card reader: " + reader.Name, NotifyType.StatusMessage);
         }
         async void cardremoved(SmartCardReader reader, CardRemovedEventArgs args)
         {
@@ -149,7 +146,7 @@ namespace SDKTemplate
                     break;
                 }
             }
-            rootPage.NotifyUser("Remove card to card reader: " + reader.Name, NotifyType.StatusMessage);
+            rootPage.NotifyUser("Remove card from card reader: " + reader.Name, NotifyType.StatusMessage);
             
         }
     }
