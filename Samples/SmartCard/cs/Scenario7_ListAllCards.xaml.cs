@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Windows.Devices.Enumeration;
 using Windows.Devices.SmartCards;
@@ -7,28 +7,39 @@ using Windows.UI.Xaml.Controls;
 
 namespace SDKTemplate
 {
+
     public class SmartCardListItem
     {
+
+        public SmartCardReader Reader
+        {
+            get;
+            set;
+        }
+
         public string ReaderName
         {
-            get;
-            set;
+            get { return Reader.Name; }
         }
-
-        public string CardName
+        public List<string> CardNames
         {
             get;
             set;
         }
-
     }
     public sealed partial class Scenario7_ListAllCards : Page
     {
         MainPage rootPage = MainPage.Current;
+        List<SmartCardListItem> cardItems;
 
         public Scenario7_ListAllCards()
         {
             this.InitializeComponent();
+            // This list will be bound to our ItemListView once it has been
+            // filled with SmartCardListItems.  The SmartCardListItem class
+            // is defined above, and describes a reader/card pair with a
+            // reader name and a card name.
+            cardItems = new List<SmartCardListItem>();
         }
 
         /// <summary>
@@ -43,12 +54,7 @@ namespace SDKTemplate
             try
             {
                 rootPage.NotifyUser("Enumerating smart cards...", NotifyType.StatusMessage);
-
-                // This list will be bound to our ItemListView once it has been
-                // filled with SmartCardListItems.  The SmartCardListItem class
-                // is defined above, and describes a reader/card pair with a
-                // reader name and a card name.
-                List<SmartCardListItem> cardItems = new List<SmartCardListItem>();
+                cardItems.Clear();
 
                 // First we get the device selector for smart card readers using
                 // the static GetDeviceSelector method of the SmartCardReader
@@ -76,23 +82,30 @@ namespace SDKTemplate
                     // each (reader, card) pair.
                     IReadOnlyList<SmartCard> cards = await reader.FindAllCardsAsync();
 
+                    var item = new SmartCardListItem()
+                    {
+                        Reader = reader,
+                        CardNames = new List<string>(cards.Count),
+                    };
+
                     foreach (SmartCard card in cards)
                     {
                         SmartCardProvisioning provisioning = await SmartCardProvisioning.FromSmartCardAsync(card);
-
-                        SmartCardListItem item = new SmartCardListItem()
-                        {
-                            ReaderName = card.Reader.Name,
-                            CardName = await provisioning.GetNameAsync()
-                        };
-
-                        cardItems.Add(item);
+                        item.CardNames.Add(await provisioning.GetNameAsync());
                     }
-                }
 
+                    cardItems.Add(item);
+                }
                 // Bind the source of ItemListView to our SmartCardListItem list.
                 ItemListView.ItemsSource = cardItems;
-
+                ItemListView.SelectedIndex = -1;
+                ItemListView.SelectionChanged += SelectedIndexChange;
+                foreach (DeviceInformation device in devices)
+                {
+                    SmartCardReader reader = await SmartCardReader.FromIdAsync(device.Id);
+                    reader.CardAdded += cardadded;
+                    reader.CardRemoved += cardremoved;
+                }
                 rootPage.NotifyUser("Enumerating smart cards completed.", NotifyType.StatusMessage);
             }
             catch (Exception ex)
@@ -103,6 +116,38 @@ namespace SDKTemplate
             {
                 b.IsEnabled = true;
             }
+        }
+        void SelectedIndexChange(object sender, SelectionChangedEventArgs args)
+        {
+            rootPage.SmartCardReaderDeviceId = cardItems[ItemListView.SelectedIndex].Reader.DeviceId;
+            rootPage.NotifyUser("select card reader: " + rootPage.SmartCardReaderDeviceId , NotifyType.StatusMessage);
+        }
+        async void cardadded(SmartCardReader reader, CardAddedEventArgs args)
+        {
+            foreach(SmartCardListItem scli in cardItems)
+            {
+                if (scli.Reader == reader)
+                {
+                    SmartCardProvisioning provisioning = await SmartCardProvisioning.FromSmartCardAsync(args.SmartCard);
+                    scli.CardNames.Add(await provisioning.GetNameAsync());
+                    break;
+                }
+            }
+            rootPage.NotifyUser("Add card to card reader: " + reader.Name, NotifyType.StatusMessage);
+        }
+        async void cardremoved(SmartCardReader reader, CardRemovedEventArgs args)
+        {
+            foreach (SmartCardListItem scli in cardItems)
+            {
+                if (scli.Reader == reader)
+                {
+                    SmartCardProvisioning provisioning = await SmartCardProvisioning.FromSmartCardAsync(args.SmartCard);
+                    scli.CardNames.Remove(await provisioning.GetNameAsync());
+                    break;
+                }
+            }
+            rootPage.NotifyUser("Remove card from card reader: " + reader.Name, NotifyType.StatusMessage);
+            
         }
     }
 }
