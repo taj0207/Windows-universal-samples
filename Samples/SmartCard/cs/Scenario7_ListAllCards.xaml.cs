@@ -100,12 +100,7 @@ namespace SDKTemplate
                 ItemListView.ItemsSource = cardItems;
                 ItemListView.SelectedIndex = -1;
                 ItemListView.SelectionChanged += SelectedIndexChange;
-                foreach (DeviceInformation device in devices)
-                {
-                    SmartCardReader reader = await SmartCardReader.FromIdAsync(device.Id);
-                    reader.CardAdded += cardadded;
-                    reader.CardRemoved += cardremoved;
-                }
+
                 rootPage.NotifyUser("Enumerating smart cards completed.", NotifyType.StatusMessage);
             }
             catch (Exception ex)
@@ -121,36 +116,6 @@ namespace SDKTemplate
         {
             rootPage.SmartCardReaderDeviceId = cardItems[ItemListView.SelectedIndex].Reader.DeviceId;
             rootPage.NotifyUser("select card reader: " + rootPage.SmartCardReaderDeviceId , NotifyType.StatusMessage);
-        }
-        async void cardadded(SmartCardReader reader, CardAddedEventArgs args)
-        {
-            Guid g;
-            foreach(SmartCardListItem scli in cardItems)
-            {
-                if (scli.Reader == reader)
-                {
-                    SmartCardProvisioning provisioning = await SmartCardProvisioning.FromSmartCardAsync(args.SmartCard);
-                    g = (await provisioning.GetIdAsync());
-                    scli.CardNames.Add(g.ToString());
-                    
-                    break;
-                }
-            }
-            rootPage.NotifyUser("Add card to card reader: " + reader.Name + " " + g.ToString(), NotifyType.StatusMessage);
-        }
-        async void cardremoved(SmartCardReader reader, CardRemovedEventArgs args)
-        {
-            foreach (SmartCardListItem scli in cardItems)
-            {
-                if (scli.Reader == reader)
-                {
-                    SmartCardProvisioning provisioning = await SmartCardProvisioning.FromSmartCardAsync(args.SmartCard);
-                    scli.CardNames.Remove(await provisioning.GetNameAsync());
-                    break;
-                }
-            }
-            rootPage.NotifyUser("Remove card to card reader: " + reader.Name, NotifyType.StatusMessage);
-            
         }
     }
 }
