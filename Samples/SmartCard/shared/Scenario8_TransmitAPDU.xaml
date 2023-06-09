@@ -1,4 +1,4 @@
-<!--
+﻿<!--
 //*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
@@ -32,15 +32,11 @@
                     Click Transmit APDU to connect to your smart card and transmit the APDU. The response will be displayed in the output box.
                     This APDU reads the smart card EF.ATR file.
                 </TextBlock>
-                <TextBlock Text="APDU:" Style="{StaticResource SampleHeaderTextStyle}"/>
-                <TextBox x:Name="ApduToSend" TextWrapping="Wrap" Text="00CB2F01025C00FF" />
-                <TextBlock Text="Response:" Style="{StaticResource SampleHeaderTextStyle}"/>
-                <TextBox x:Name="ApduResponse" Text="" />
             </StackPanel>
-            
+
             <ScrollViewer Grid.Row="1" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                    <Button x:Name="TransmitAPDU" Content="Transmit APDU" Margin="0,0,50,0" Click="Transmit_Click"/>
+                    <Button x:Name="TransmitAPDU" Content="Transmit APDU" Margin="0,0,10,0" Click="Transmit_Click"/>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
