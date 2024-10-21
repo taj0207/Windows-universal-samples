@@ -14,7 +14,7 @@ namespace SDKTemplate
 
         public Scenario8_TransmitAPDU()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         /// <summary>

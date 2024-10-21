@@ -32,7 +32,8 @@ namespace SDKTemplate
             new Scenario() { Title="Verify Response", ClassType=typeof(Scenario5_VerifyResponse)},
             new Scenario() { Title="Delete TPM Virtual Smart Card", ClassType=typeof(Scenario6_DeleteTPM)},
             new Scenario() { Title="List All Smart Cards", ClassType=typeof(Scenario7_ListAllCards)},
-            new Scenario() { Title="Transmit APDU to Smart Card", ClassType=typeof(Scenario8_TransmitAPDU)}
+            new Scenario() { Title="Transmit APDU to Smart Card", ClassType=typeof(Scenario8_TransmitAPDU) },
+            new Scenario() { Title="Transmit APDU to auto detected Smart Card", ClassType=typeof(Scenario9_tmp)}
         };
 
         public Windows.Storage.Streams.IBuffer AdminKey { get; set; }

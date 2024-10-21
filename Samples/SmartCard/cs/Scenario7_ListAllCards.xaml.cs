@@ -34,7 +34,7 @@ namespace SDKTemplate
 
         public Scenario7_ListAllCards()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             // This list will be bound to our ItemListView once it has been
             // filled with SmartCardListItems.  The SmartCardListItem class
             // is defined above, and describes a reader/card pair with a

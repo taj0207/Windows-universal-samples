@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
@@ -8,8 +8,8 @@
 
     <Identity
       Name="Microsoft.SDKSamples.Smartcard.CS"
-      Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-      Version="1.0.0.0" />
+      Publisher="CN=antsai"
+      Version="1.0.9.0" />
 
 
     <mp:PhoneIdentity PhoneProductId="3dfe70a7-ecfb-49ae-8a26-b7b2c35af1aa" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
@@ -52,6 +52,8 @@
     <Capabilities>      
       <Capability Name="internetClient" />
       <Capability Name="internetClientServer" />
-      <uap:Capability Name="sharedUserCertificates" />
+      <uap:Capability Name="sharedUserCertificates" />      
+      <uap:Capability Name="picturesLibrary"/>      
+      <DeviceCapability Name="proximity"/>
     </Capabilities>
 </Package>
